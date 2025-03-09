@@ -2,6 +2,7 @@ package com.bookstore.util;
 
 import com.bookstore.model.Author;
 import com.bookstore.model.Book;
+import com.bookstore.model.Customer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -14,6 +15,7 @@ public class DataStorage {
     // In-memory storage for Books and Authors
     private Map<Integer, Book> books = new HashMap<>();
     private Map<String, Author> authors = new HashMap<>();
+    private Map<String, Customer> customers = new HashMap<>();
 
     private static int bookIdCounter = 1;  // To track the IDs for books
 
@@ -22,6 +24,11 @@ public class DataStorage {
         Author author1 = new Author("J.K. Rowling", "rowling@example.com", "password123", "British author");
         authors.put(author1.getAuthorId(), author1);
 
+        // Create and add a mock customer
+        Customer customer1 = new Customer("Customer Tishan", "tishan@example.com", "password123");
+        customers.put(customer1.getCustomerId(), customer1);  
+
+        // Create a mock book and add it
         Book book1 = new Book(bookIdCounter++, "Harry Potter", author1, "978-3-16-148410-0", 10, 29.99);
         books.put(book1.getId(), book1);
     }
@@ -104,5 +111,35 @@ public class DataStorage {
         return books.values().stream()
                 .filter(book -> book.getAuthor() != null && book.getAuthor().getAuthorId().equals(authorId))
                 .collect(Collectors.toList());
+    }
+
+    // Add Customer to storage
+    public Customer addCustomer(Customer customer) {
+        customers.put(customer.getCustomerId(), customer);  // Using the auto-generated customerId
+        return customer;
+    }
+
+    // Get all Customers
+    public List<Customer> getCustomers() {
+        return customers.values().stream().collect(Collectors.toList());
+    }
+
+    // Get Customer by ID
+    public Customer getCustomerById(String customerId) {
+        return customers.get(customerId);
+    }
+
+    // Update Customer
+    public Customer updateCustomer(String customerId, Customer customer) {
+        if (customers.containsKey(customerId)) {
+            customers.put(customerId, customer);
+            return customer;
+        }
+        return null;
+    }
+
+    // Remove Customer
+    public boolean removeCustomer(String customerId) {
+        return customers.remove(customerId) != null;
     }
 }

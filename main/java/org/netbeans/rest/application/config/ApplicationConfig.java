@@ -30,6 +30,7 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.bookstore.resource.AuthorResource.class);
         resources.add(com.bookstore.resource.BookResource.class);
+        resources.add(com.bookstore.resource.CustomerResource.class);
     }
     
 }
