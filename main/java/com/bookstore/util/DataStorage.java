@@ -2,7 +2,10 @@ package com.bookstore.util;
 
 import com.bookstore.model.Author;
 import com.bookstore.model.Book;
+import com.bookstore.model.Cart;
 import com.bookstore.model.Customer;
+import com.bookstore.model.Order;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -12,25 +15,35 @@ public class DataStorage {
 
     private static DataStorage instance;
 
-    // In-memory storage for Books and Authors
+    // In-memory storages 
     private Map<Integer, Book> books = new HashMap<>();
     private Map<String, Author> authors = new HashMap<>();
     private Map<String, Customer> customers = new HashMap<>();
+    private Map<String, Cart> carts = new HashMap<>();
+    private Map<String, List<Order>> orders = new HashMap<>();
 
-    private static int bookIdCounter = 1;  // To track the IDs for books
+    private static int bookIdCounter = 1;
 
-    private DataStorage() {
+      private DataStorage() {
         // Initialize with some default data if required
         Author author1 = new Author("J.K. Rowling", "rowling@example.com", "password123", "British author");
         authors.put(author1.getAuthorId(), author1);
 
-        // Create and add a mock customer
         Customer customer1 = new Customer("Customer Tishan", "tishan@example.com", "password123");
-        customers.put(customer1.getCustomerId(), customer1);  
+        customers.put(customer1.getCustomerId(), customer1);
 
-        // Create a mock book and add it
         Book book1 = new Book(bookIdCounter++, "Harry Potter", author1, "978-3-16-148410-0", 10, 29.99);
         books.put(book1.getId(), book1);
+
+        // Create a cart for the customer and add book items to the cart
+        Cart cart1 = new Cart(customer1.getCustomerId());
+        cart1.addBook(book1, 2);  // Add 2 Harry Potter books to the cart
+        carts.put(customer1.getCustomerId(), cart1);
+
+        // Create an order for the customer
+//        Order order1 = new Order(customer1.getCustomerId(), List.of(book1));
+//        orders.put(customer1.getCustomerId(), new ArrayList<>());
+//        orders.get(customer1.getCustomerId()).add(order1);
     }
 
     // Singleton pattern to get the instance
@@ -41,17 +54,17 @@ public class DataStorage {
         return instance;
     }
 
-    // Add Author to the storage
+    // Add Author
     public Author addAuthor(Author author) {
         if (authors.containsKey(author.getAuthorId())) {
-            return authors.get(author.getAuthorId());  // Return the existing author if already present
+            return authors.get(author.getAuthorId());
         }
         authors.put(author.getAuthorId(), author);
         return author;
     }
 
+    // Add Book
     public Book addBook(Book book) {
-        // If the author exists, proceed with adding the book
         book.setId(bookIdCounter++);
         books.put(book.getId(), book);
         return book;
@@ -62,12 +75,12 @@ public class DataStorage {
         return authors.values().stream().collect(Collectors.toList());
     }
 
-    // Get an Author by ID
+    // Get Author by ID
     public Author getAuthorById(String authorId) {
         return authors.get(authorId);
     }
 
-    // Update an Author by ID
+    // Update Author
     public Author updateAuthor(String authorId, Author author) {
         if (authors.containsKey(authorId)) {
             authors.put(authorId, author);
@@ -76,7 +89,7 @@ public class DataStorage {
         return null;
     }
 
-    // Remove an Author by ID
+    // Remove Author
     public boolean removeAuthor(String authorId) {
         return authors.remove(authorId) != null;
     }
@@ -86,36 +99,37 @@ public class DataStorage {
         return books.values().stream().collect(Collectors.toList());
     }
 
-    // Get a Book by ID
+    // Get Book by ID
     public Book getBookById(int bookId) {
         return books.get(bookId);
     }
 
-    // Update a Book by ID
+    // Update a Book
     public Book updateBook(int bookId, Book book) {
         if (books.containsKey(bookId)) {
             book.setId(bookId);
             books.put(bookId, book);
             return book;
         }
-        return null;  // Book not found
+        return null;
     }
 
-    // Remove a Book by ID
+    // Remove a Book
     public boolean removeBook(int bookId) {
         return books.remove(bookId) != null;
     }
 
-    // Get Books by Author ID
+    // Get Books by Author
     public List<Book> getBooksByAuthor(String authorId) {
         return books.values().stream()
-                .filter(book -> book.getAuthor() != null && book.getAuthor().getAuthorId().equals(authorId))
+                .filter(book -> book.getAuthor() != null
+                && book.getAuthor().getAuthorId().equals(authorId))
                 .collect(Collectors.toList());
     }
 
-    // Add Customer to storage
+    // Add Customer
     public Customer addCustomer(Customer customer) {
-        customers.put(customer.getCustomerId(), customer);  // Using the auto-generated customerId
+        customers.put(customer.getCustomerId(), customer);
         return customer;
     }
 
@@ -141,5 +155,34 @@ public class DataStorage {
     // Remove Customer
     public boolean removeCustomer(String customerId) {
         return customers.remove(customerId) != null;
+    }
+// Get Customer's Cart
+    public Cart getCustomerCart(String customerId) {
+        return carts.get(customerId);
+    }
+
+    // Update Cart
+    public void updateCart(Cart cart) {
+        carts.put(cart.getCustomerId(), cart);
+    }
+
+    // Save Order
+    public void saveOrder(Order order) {
+        orders.putIfAbsent(order.getCustomerId(), new ArrayList<>());
+        orders.get(order.getCustomerId()).add(order);
+    }
+
+    // Get Orders by Customer ID
+    public List<Order> getOrdersByCustomerId(String customerId) {
+        return orders.getOrDefault(customerId, new ArrayList<>());
+    }
+
+    // Get Order by Customer ID and Order ID
+    public Order getOrderById(String customerId, String orderId) {
+        return orders.getOrDefault(customerId, new ArrayList<>())
+                     .stream()
+                     .filter(order -> order.getOrderId().equals(orderId))
+                     .findFirst()
+                     .orElse(null);
     }
 }
