@@ -8,7 +8,7 @@ public class Book {
 
     private int id;
     private String title;
-    private Author author;  // Reference to the Author class (this should not be authorId)
+    private Author author;
     private String isbn;
     private int stock;
     private double price;

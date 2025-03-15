@@ -16,6 +16,7 @@ public class AuthorServiceImpl implements AuthorService {
     private static final Logger logger = LoggerFactory.getLogger(AuthorServiceImpl.class);
     private DataStorage dataStorage = DataStorage.getInstance();
 
+    // Create Author Method
     @Override
     public Response createAuthor(Author author) {
         try {
@@ -37,6 +38,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    // Extract All Authors Details
     @Override
     public Response getAllAuthors() {
         try {
@@ -55,6 +57,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    // Extract Particular Author
     @Override
     public Response getAuthorById(String id) {
         try {
@@ -75,7 +78,8 @@ public class AuthorServiceImpl implements AuthorService {
                     .build();
         }
     }
-
+    
+    // Update Author
     @Override
     public Response updateAuthor(String id, Author author) {
         try {
@@ -105,6 +109,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    // Delete Author 
     @Override
     public Response deleteAuthor(String id) {
         try {
@@ -126,6 +131,7 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    // Get Books Related To The Author
     @Override
     public Response getBooksByAuthor(String id) {
         try {

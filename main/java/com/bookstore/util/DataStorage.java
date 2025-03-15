@@ -15,7 +15,7 @@ public class DataStorage {
 
     private static DataStorage instance;
 
-    // In-memory storages 
+    // In-memory storages
     private Map<Integer, Book> books = new HashMap<>();
     private Map<String, Author> authors = new HashMap<>();
     private Map<String, Customer> customers = new HashMap<>();
@@ -24,8 +24,9 @@ public class DataStorage {
 
     private static int bookIdCounter = 1;
 
-      private DataStorage() {
-        // Initialize with some default data if required
+    // Mock data inisializing constructor
+    private DataStorage() {
+
         Author author1 = new Author("J.K. Rowling", "rowling@example.com", "password123", "British author");
         authors.put(author1.getAuthorId(), author1);
 
@@ -35,18 +36,13 @@ public class DataStorage {
         Book book1 = new Book(bookIdCounter++, "Harry Potter", author1, "978-3-16-148410-0", 10, 29.99);
         books.put(book1.getId(), book1);
 
-        // Create a cart for the customer and add book items to the cart
         Cart cart1 = new Cart(customer1.getCustomerId());
-        cart1.addBook(book1, 2);  // Add 2 Harry Potter books to the cart
+        cart1.addBook(book1, 2);
         carts.put(customer1.getCustomerId(), cart1);
 
-        // Create an order for the customer
-//        Order order1 = new Order(customer1.getCustomerId(), List.of(book1));
-//        orders.put(customer1.getCustomerId(), new ArrayList<>());
-//        orders.get(customer1.getCustomerId()).add(order1);
     }
 
-    // Singleton pattern to get the instance
+    // Singleton instance
     public static DataStorage getInstance() {
         if (instance == null) {
             instance = new DataStorage();
@@ -156,7 +152,8 @@ public class DataStorage {
     public boolean removeCustomer(String customerId) {
         return customers.remove(customerId) != null;
     }
-// Get Customer's Cart
+
+    // Get Customer's Cart
     public Cart getCustomerCart(String customerId) {
         return carts.get(customerId);
     }
@@ -180,9 +177,9 @@ public class DataStorage {
     // Get Order by Customer ID and Order ID
     public Order getOrderById(String customerId, String orderId) {
         return orders.getOrDefault(customerId, new ArrayList<>())
-                     .stream()
-                     .filter(order -> order.getOrderId().equals(orderId))
-                     .findFirst()
-                     .orElse(null);
+                .stream()
+                .filter(order -> order.getOrderId().equals(orderId))
+                .findFirst()
+                .orElse(null);
     }
 }

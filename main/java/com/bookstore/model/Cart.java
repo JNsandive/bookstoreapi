@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Cart {
     private String customerId;
-    private List<CartItem> cartItems;  // List of CartItems
-
+    private List<CartItem> cartItems;  
+    
     public Cart(String customerId) {
         this.customerId = customerId;
         this.cartItems = new ArrayList<>();

@@ -14,6 +14,7 @@ public class CartServiceImpl implements CartService {
     private static final Logger logger = LoggerFactory.getLogger(CartServiceImpl.class);
     private DataStorage dataStorage = DataStorage.getInstance();
 
+    // Add Cart Item Method
     @Override
     public Response addItemToCart(String customerId, CartItemRequest cartItemRequest) {
         try {
@@ -55,6 +56,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    // Get Cart Item Method
     @Override
     public Response getCartItems(String customerId) {
         try {
@@ -76,6 +78,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    // Update Cart Item Method
     @Override
     public Response updateCartItem(String customerId, int bookId, CartItemRequest cartItemRequest) {
         try {
@@ -118,6 +121,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    // Remove Item From The Cart Method
     @Override
     public Response removeItemFromCart(String customerId, int bookId) {
         try {

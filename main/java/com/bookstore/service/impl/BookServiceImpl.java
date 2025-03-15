@@ -16,6 +16,7 @@ public class BookServiceImpl implements BookService {
     private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class);
     private DataStorage dataStorage = DataStorage.getInstance();
 
+    // Create book method
     @Override
     public Response createBook(Book book) {
         try {
@@ -55,6 +56,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    // Update book method
     @Override
     public Response updateBook(int id, Book book) {
         try {
@@ -79,8 +81,7 @@ public class BookServiceImpl implements BookService {
 
             logger.info("Successfully updated book: {}", updatedBook);
 
-            return Response.ok(updatedBook).build();  // Return the updated book
-
+            return Response.ok(updatedBook).build();
         } catch (BookNotFoundException e) {
             logger.error("Book not found for update: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
@@ -99,6 +100,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    // Extract All Books
     @Override
     public Response getAllBooks() {
         try {
@@ -117,6 +119,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    // Extract Specific Book
     @Override
     public Response getBookById(int id) {
         try {
@@ -138,6 +141,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    // Delete book
     @Override
     public Response deleteBook(int id) {
         try {

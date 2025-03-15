@@ -10,74 +10,70 @@ import com.bookstore.exception.CustomerNotFoundException;
 import com.bookstore.exception.OutOfStockException;
 import com.bookstore.exception.CartNotFoundException;
 import com.bookstore.model.CartItem;
+import com.bookstore.model.Customer;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderServiceImpl implements OrderService {
 
     private DataStorage dataStorage = DataStorage.getInstance();
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Override
     public Response placeOrder(String customerId) {
         try {
-            // Validate if customer exists
-            if (dataStorage.getCustomerById(customerId) == null) {
+            // Validate customer
+            Customer customer = dataStorage.getCustomerById(customerId);
+            if (customer == null) {
                 throw new CustomerNotFoundException("Customer not found.");
             }
 
-            // Fetch the customer's cart
+            // Validate cart
             Cart cart = dataStorage.getCustomerCart(customerId);
-            if (cart == null) {
-                throw new CartNotFoundException("Cart not found.");
+            if (cart == null || cart.getCartItems().isEmpty()) {
+                throw new CartNotFoundException("Cart is empty or not found.");
             }
 
-            // Prepare the list of order items from the cart
+            // Prepare order items from cart
             List<OrderItem> orderItems = new ArrayList<>();
             for (CartItem cartItem : cart.getCartItems()) {
-                int bookId = cartItem.getBookId();
-                int count = cartItem.getCount();
+                Book book = dataStorage.getBookById(cartItem.getBookId());
 
-                // Check if there's enough stock
-                Book book = dataStorage.getBookById(bookId);
-                if (book == null || book.getStock() < count) {
-                    throw new OutOfStockException("Not enough stock for book: " + book.getTitle());
+                if (book == null || book.getStock() < cartItem.getCount()) {
+                    throw new OutOfStockException("Not enough stock for book: "
+                            + (book != null ? book.getTitle() : "Unknown"));
                 }
 
-                // Create OrderItem and add it to the order
-                OrderItem orderItem = new OrderItem(book, count);
+                // reduce the buying book count from the actual count
+                book.setStock(book.getStock() - cartItem.getCount());
+                dataStorage.updateBook(book.getId(), book);
+
+                // Add book to order
+                OrderItem orderItem = new OrderItem(book, cartItem.getCount());
                 orderItems.add(orderItem);
             }
 
-            // Create an order with the prepared order items
+            // Create the new order
             Order newOrder = new Order(customerId, orderItems);
-
-            // Save the order in the data storage
             dataStorage.saveOrder(newOrder);
 
-            // clear the cart items and update the cart.
+            // Clear existing cart after order placement
             cart.getCartItems().clear();
-            dataStorage.updateCart(cart); 
+            dataStorage.updateCart(cart);
 
-            // Return success response with order ID and order details
+            // Return successful order response
             return Response.status(Response.Status.CREATED)
                     .entity(newOrder)
                     .build();
-        } catch (CustomerNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        } catch (CartNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-        } catch (OutOfStockException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .build();
+        } catch (CustomerNotFoundException | CartNotFoundException | OutOfStockException e) {
+            logger.error("Order placement failed: {}", e.getMessage(), e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (Exception e) {
-            // Catch any other unexpected errors
+            logger.error("Unexpected error placing order", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while placing the order.")
                     .build();
@@ -101,10 +97,12 @@ public class OrderServiceImpl implements OrderService {
 
             return Response.ok(orders).build();
         } catch (CustomerNotFoundException e) {
+            logger.error("Customer Not found", e);
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
+            logger.error("Unexpected error placing order", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while fetching the orders.")
                     .build();
@@ -128,10 +126,12 @@ public class OrderServiceImpl implements OrderService {
 
             return Response.ok(order).build();
         } catch (CustomerNotFoundException e) {
+            logger.error("Customer Not found", e);
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
+            logger.error("Unexpected error placing order", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while fetching the order.")
                     .build();

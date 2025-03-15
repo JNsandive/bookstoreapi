@@ -1,6 +1,5 @@
 package com.bookstore.resource;
 
-import com.bookstore.model.Order;
 import com.bookstore.service.OrderService;
 import com.bookstore.service.impl.OrderServiceImpl;
 import javax.ws.rs.*;

@@ -5,7 +5,7 @@ import java.util.List;
 public class Order {
     private String orderId;
     private String customerId;
-    private List<OrderItem> orderItems;  // List of order items (bookId, count)
+    private List<OrderItem> orderItems;  
     private String status;
 
     public Order(String customerId, List<OrderItem> orderItems) {

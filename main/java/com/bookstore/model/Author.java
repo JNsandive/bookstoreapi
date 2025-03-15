@@ -10,7 +10,7 @@ public class Author extends Person {
 
     // Default constructor for Jackson
     public Author() {
-        super("", "", "");  // Call Person constructor with default values
+        super("", "", "");  
     }
 
     // Constructor with parameters
@@ -19,11 +19,12 @@ public class Author extends Person {
                   @JsonProperty("email") String email,
                   @JsonProperty("password") String password,
                   @JsonProperty("biography") String biography) {
-        super(name, email, password);  // Call Person constructor with parameters
+        super(name, email, password);  
         this.biography = biography;
         this.authorId = "A" + System.currentTimeMillis(); // Generate unique authorId
     }
 
+    // Getter and Setters
     public String getBiography() {
         return biography;
     }
@@ -32,7 +33,6 @@ public class Author extends Person {
         this.biography = biography;
     }
 
-    // Getter and Setter for authorId
     public String getAuthorId() {
         return authorId;
     }

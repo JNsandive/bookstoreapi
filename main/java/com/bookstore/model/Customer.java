@@ -14,7 +14,6 @@ public class Customer extends Person {
         this.customerId = "C" + System.currentTimeMillis();  
     }
 
-    // Getter and Setter for customerId
     public String getCustomerId() {
         return customerId;
     }
