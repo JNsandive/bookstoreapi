@@ -7,6 +7,8 @@ import com.bookstore.service.impl.AuthorServiceImpl;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.validation.Valid;
+
 
 @Path("/authors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,7 +18,7 @@ public class AuthorResource {
     private AuthorService authorService = new AuthorServiceImpl();
 
     @POST
-    public Response createAuthor(Author author) {
+    public Response createAuthor(@Valid Author author) {
         return authorService.createAuthor(author);
     }
 
@@ -33,7 +35,7 @@ public class AuthorResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateAuthor(@PathParam("id") String id, Author author) {
+    public Response updateAuthor(@PathParam("id") String id, @Valid Author author) {
         return authorService.updateAuthor(id, author);
     }
 

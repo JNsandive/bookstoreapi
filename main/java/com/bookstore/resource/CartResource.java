@@ -3,6 +3,7 @@ package com.bookstore.resource;
 import com.bookstore.dao.CartItemRequest;
 import com.bookstore.service.CartService;
 import com.bookstore.service.impl.CartServiceImpl;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,7 +17,7 @@ public class CartResource {
     @Path("/items")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addItemToCart(@PathParam("customerId") String customerId, CartItemRequest cartItemRequest) {
+    public Response addItemToCart(@PathParam("customerId") String customerId,@Valid CartItemRequest cartItemRequest) {
         return cartService.addItemToCart(customerId, cartItemRequest);
     }
 
@@ -30,7 +31,7 @@ public class CartResource {
     @Path("/items/{bookId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateCartItem(@PathParam("customerId") String customerId, @PathParam("bookId") int bookId, CartItemRequest cartItemRequest) {
+    public Response updateCartItem(@PathParam("customerId") String customerId, @PathParam("bookId") int bookId,@Valid  CartItemRequest cartItemRequest) {
         return cartService.updateCartItem(customerId, bookId, cartItemRequest);
     }
 

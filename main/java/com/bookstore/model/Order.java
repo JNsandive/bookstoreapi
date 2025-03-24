@@ -1,11 +1,18 @@
 package com.bookstore.model;
 
 import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 public class Order {
+
     private String orderId;
+    @NotBlank(message = "Customer ID cannot be empty.")
     private String customerId;
-    private List<OrderItem> orderItems;  
+    @NotEmpty(message = "Order must contain at least one item.")
+    @Valid
+    private List<OrderItem> orderItems;
     private String status;
 
     public Order(String customerId, List<OrderItem> orderItems) {

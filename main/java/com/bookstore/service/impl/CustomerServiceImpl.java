@@ -1,6 +1,7 @@
 package com.bookstore.service.impl;
 
 import com.bookstore.model.Customer;
+import com.bookstore.model.ErrorResponse;
 import com.bookstore.util.DataStorage;
 import com.bookstore.service.CustomerService;
 import javax.validation.Validation;
@@ -37,7 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
                         .map(violation -> violation.getMessage())
                         .collect(Collectors.joining(", "));
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Validation error: " + errorMessage)
+                        .entity(new ErrorResponse("Validation error.", errorMessage))
                         .build();
             }
 
@@ -48,7 +49,7 @@ public class CustomerServiceImpl implements CustomerService {
         } catch (Exception e) {
             logger.error("Unexpected error while creating customer: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the request.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while processing the request."))
                     .build();
         }
     }
@@ -60,14 +61,14 @@ public class CustomerServiceImpl implements CustomerService {
             Customer customer = dataStorage.getCustomerById(customerId);
             if (customer == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer not found.")
+                        .entity(new ErrorResponse("Customer not found.", "No customer found with the given ID."))
                         .build();
             }
             return Response.ok(customer).build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching customer: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching the customer.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while fetching the customer."))
                     .build();
         }
     }
@@ -80,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
         } catch (Exception e) {
             logger.error("An error occurred while fetching all customers: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching customers.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while fetching customers."))
                     .build();
         }
     }
@@ -95,21 +96,21 @@ public class CustomerServiceImpl implements CustomerService {
                         .map(violation -> violation.getMessage())
                         .collect(Collectors.joining(", "));
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Validation error: " + errorMessage)
+                        .entity(new ErrorResponse("Validation error.", errorMessage))
                         .build();
             }
 
             Customer updatedCustomer = dataStorage.updateCustomer(customerId, customer);
             if (updatedCustomer == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer not found.")
+                        .entity(new ErrorResponse("Customer not found.", "No customer found with the given ID."))
                         .build();
             }
             return Response.ok(updatedCustomer).build();
         } catch (Exception e) {
             logger.error("An error occurred while updating customer: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while updating the customer.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while updating the customer."))
                     .build();
         }
     }
@@ -121,15 +122,16 @@ public class CustomerServiceImpl implements CustomerService {
             boolean success = dataStorage.removeCustomer(customerId);
             if (!success) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer not found.")
+                        .entity(new ErrorResponse("Customer not found.", "No customer found with the given ID."))
                         .build();
             }
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (Exception e) {
             logger.error("An error occurred while deleting customer: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while deleting the customer.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while deleting the customer."))
                     .build();
         }
     }
+
 }

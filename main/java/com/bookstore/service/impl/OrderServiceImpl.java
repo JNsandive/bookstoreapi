@@ -11,6 +11,7 @@ import com.bookstore.exception.OutOfStockException;
 import com.bookstore.exception.CartNotFoundException;
 import com.bookstore.model.CartItem;
 import com.bookstore.model.Customer;
+import com.bookstore.model.ErrorResponse;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
                             + (book != null ? book.getTitle() : "Unknown"));
                 }
 
-                // reduce the buying book count from the actual count
+                // Reduce the book count from stock
                 book.setStock(book.getStock() - cartItem.getCount());
                 dataStorage.updateBook(book.getId(), book);
 
@@ -71,11 +72,13 @@ public class OrderServiceImpl implements OrderService {
                     .build();
         } catch (CustomerNotFoundException | CartNotFoundException | OutOfStockException e) {
             logger.error("Order placement failed: {}", e.getMessage(), e);
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Order placement failed.", e.getMessage()))
+                    .build();
         } catch (Exception e) {
             logger.error("Unexpected error placing order", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while placing the order.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while placing the order."))
                     .build();
         }
     }
@@ -91,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
             List<Order> orders = dataStorage.getOrdersByCustomerId(customerId);
             if (orders.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("No orders found for the customer.")
+                        .entity(new ErrorResponse("No orders found.", "No orders available for the given customer ID."))
                         .build();
             }
 
@@ -99,12 +102,12 @@ public class OrderServiceImpl implements OrderService {
         } catch (CustomerNotFoundException e) {
             logger.error("Customer Not found", e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
+                    .entity(new ErrorResponse("Customer not found.", e.getMessage()))
                     .build();
         } catch (Exception e) {
-            logger.error("Unexpected error placing order", e);
+            logger.error("Unexpected error fetching orders", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching the orders.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while fetching the orders."))
                     .build();
         }
     }
@@ -120,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
             Order order = dataStorage.getOrderById(customerId, orderId);
             if (order == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Order not found.")
+                        .entity(new ErrorResponse("Order not found.", "No order found with the given ID for this customer."))
                         .build();
             }
 
@@ -128,13 +131,14 @@ public class OrderServiceImpl implements OrderService {
         } catch (CustomerNotFoundException e) {
             logger.error("Customer Not found", e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
+                    .entity(new ErrorResponse("Customer not found.", e.getMessage()))
                     .build();
         } catch (Exception e) {
-            logger.error("Unexpected error placing order", e);
+            logger.error("Unexpected error fetching order", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching the order.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while fetching the order."))
                     .build();
         }
     }
+
 }

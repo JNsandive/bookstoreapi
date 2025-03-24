@@ -1,9 +1,20 @@
 package com.bookstore.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 public class CartItem {
+
+    @NotNull(message = "Book ID is required.")
+    @Positive(message = "Book ID must be greater than 0.")
     private int bookId;
+
     private String bookName;
-    private int count;
+
+    @NotNull(message = "Count is required.")
+    @Min(value = 1, message = "Count must be at least 1.")
+    private Integer count;
 
     public CartItem(int bookId, String bookName, int count) {
         this.bookId = bookId;

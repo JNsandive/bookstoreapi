@@ -5,6 +5,7 @@ import com.bookstore.model.Cart;
 import com.bookstore.util.DataStorage;
 import com.bookstore.service.CartService;
 import com.bookstore.dao.CartItemRequest;
+import com.bookstore.model.ErrorResponse;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +23,14 @@ public class CartServiceImpl implements CartService {
             Book book = dataStorage.getBookById(cartItemRequest.getBookId());
             if (book == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Book not found.")
+                        .entity(new ErrorResponse("Book not found.", "No book found with the given ID."))
                         .build();
             }
 
             // Check if the requested count does not exceed the available stock
             if (cartItemRequest.getCount() > book.getStock()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Requested count exceeds available stock.")
+                        .entity(new ErrorResponse("Stock limit exceeded.", "Requested count exceeds available stock."))
                         .build();
             }
 
@@ -37,7 +38,7 @@ public class CartServiceImpl implements CartService {
             Cart cart = dataStorage.getCustomerCart(customerId);
             if (cart == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer cart not found.")
+                        .entity(new ErrorResponse("Customer cart not found.", "No cart found for the given customer ID."))
                         .build();
             }
 
@@ -51,7 +52,7 @@ public class CartServiceImpl implements CartService {
         } catch (Exception e) {
             logger.error("Error adding item to cart", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while adding the item to the cart.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while adding the item to the cart."))
                     .build();
         }
     }
@@ -64,16 +65,15 @@ public class CartServiceImpl implements CartService {
             if (cart == null) {
                 logger.error("Cart for customer {} not found", customerId);
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer cart not found.")
+                        .entity(new ErrorResponse("Customer cart not found.", "No cart found for the given customer ID."))
                         .build();
             }
 
-            // Get book names and counts
             return Response.ok(cart.getCartItems()).build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching cart items for customer {}", customerId, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching cart items.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while fetching cart items."))
                     .build();
         }
     }
@@ -85,13 +85,13 @@ public class CartServiceImpl implements CartService {
             Book book = dataStorage.getBookById(bookId);
             if (book == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Book not found.")
+                        .entity(new ErrorResponse("Book not found.", "No book found with the given ID."))
                         .build();
             }
 
             if (cartItemRequest.getCount() > book.getStock()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Requested count exceeds available stock.")
+                        .entity(new ErrorResponse("Stock limit exceeded.", "Requested count exceeds available stock."))
                         .build();
             }
 
@@ -99,7 +99,7 @@ public class CartServiceImpl implements CartService {
             Cart cart = dataStorage.getCustomerCart(customerId);
             if (cart == null) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer cart not found.")
+                        .entity(new ErrorResponse("Customer cart not found.", "No cart found for the given customer ID."))
                         .build();
             }
 
@@ -110,13 +110,13 @@ public class CartServiceImpl implements CartService {
                 return Response.ok("Book updated in cart successfully.").build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Book not found in the cart or invalid count.")
+                        .entity(new ErrorResponse("Book not found in cart.", "The book is not present in the cart or invalid count."))
                         .build();
             }
         } catch (Exception e) {
             logger.error("An error occurred while updating the cart item for customer {}", customerId, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while updating the cart item.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while updating the cart item."))
                     .build();
         }
     }
@@ -129,7 +129,7 @@ public class CartServiceImpl implements CartService {
             if (cart == null) {
                 logger.error("Cart for customer {} not found", customerId);
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Customer cart not found.")
+                        .entity(new ErrorResponse("Customer cart not found.", "No cart found for the given customer ID."))
                         .build();
             }
 
@@ -140,13 +140,13 @@ public class CartServiceImpl implements CartService {
             } else {
                 logger.error("Book with ID {} not found in cart for customer {}", bookId, customerId);
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Book not found in the cart.")
+                        .entity(new ErrorResponse("Book not found in cart.", "No book found with the given ID in the cart."))
                         .build();
             }
         } catch (Exception e) {
             logger.error("An error occurred while removing the item from the cart for customer {}", customerId, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while removing the item from the cart.")
+                    .entity(new ErrorResponse("Internal server error.", "An error occurred while removing the item from the cart."))
                     .build();
         }
     }

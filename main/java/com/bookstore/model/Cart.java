@@ -2,12 +2,16 @@ package com.bookstore.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 
 public class Cart {
+
+    @NotBlank(message = "Customer ID cannot be empty.")
     private String customerId;
-    private List<CartItem> cartItems;  
-    
+    private List<CartItem> cartItems;
+
     public Cart(String customerId) {
+
         this.customerId = customerId;
         this.cartItems = new ArrayList<>();
     }

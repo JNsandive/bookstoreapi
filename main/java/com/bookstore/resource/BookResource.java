@@ -3,6 +3,7 @@ package com.bookstore.resource;
 import com.bookstore.model.Book;
 import com.bookstore.service.BookService;
 import com.bookstore.service.impl.BookServiceImpl;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,7 +16,7 @@ public class BookResource {
     private BookService bookService = new BookServiceImpl();
 
     @POST
-    public Response createBook(Book book) {
+    public Response createBook(@Valid Book book) {
         return bookService.createBook(book);
     }
 
@@ -32,7 +33,7 @@ public class BookResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateBook(@PathParam("id") int id, Book book) {
+    public Response updateBook(@PathParam("id") int id,@Valid Book book) {
         return bookService.updateBook(id, book);
     }
 

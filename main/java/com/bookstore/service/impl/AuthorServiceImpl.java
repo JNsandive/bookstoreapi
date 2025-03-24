@@ -6,6 +6,7 @@ import com.bookstore.service.AuthorService;
 import com.bookstore.exception.AuthorNotFoundException;
 import com.bookstore.exception.InvalidInputException;
 import com.bookstore.model.Book;
+import com.bookstore.model.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
@@ -28,12 +29,12 @@ public class AuthorServiceImpl implements AuthorService {
         } catch (InvalidInputException e) {
             logger.error("Invalid author data: {}", e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Invalid author data.")
+                    .entity(new ErrorResponse("Invalid author data.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while creating the author: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while creating the author.")
+                    .entity(new ErrorResponse("An error occurred while creating the author.", e.getMessage()))
                     .build();
         }
     }
@@ -45,14 +46,14 @@ public class AuthorServiceImpl implements AuthorService {
             List<Author> authors = dataStorage.getAuthors();
             if (authors.isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT)
-                        .entity("No authors available.")
+                        .entity(new ErrorResponse("No authors available.", "The database returned an empty list."))
                         .build();
             }
             return Response.ok(authors).build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching authors: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching authors.")
+                    .entity(new ErrorResponse("An error occurred while fetching authors.", e.getMessage()))
                     .build();
         }
     }
@@ -69,16 +70,16 @@ public class AuthorServiceImpl implements AuthorService {
         } catch (AuthorNotFoundException e) {
             logger.error("Author not found: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Author not found.")
+                    .entity(new ErrorResponse("Author not found.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching the author: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching the author.")
+                    .entity(new ErrorResponse("An error occurred while fetching the author.", e.getMessage()))
                     .build();
         }
     }
-    
+
     // Update Author
     @Override
     public Response updateAuthor(String id, Author author) {
@@ -94,17 +95,17 @@ public class AuthorServiceImpl implements AuthorService {
         } catch (AuthorNotFoundException e) {
             logger.error("Author not found for update: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Author not found for update.")
+                    .entity(new ErrorResponse("Author not found for update.", e.getMessage()))
                     .build();
         } catch (InvalidInputException e) {
             logger.error("Invalid author data for update: {}", e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Invalid author data.")
+                    .entity(new ErrorResponse("Invalid author data.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while updating the author: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while updating the author.")
+                    .entity(new ErrorResponse("An error occurred while updating the author.", e.getMessage()))
                     .build();
         }
     }
@@ -121,12 +122,12 @@ public class AuthorServiceImpl implements AuthorService {
         } catch (AuthorNotFoundException e) {
             logger.error("Author not found for deletion: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Author not found for deletion.")
+                    .entity(new ErrorResponse("Author not found for deletion.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while deleting the author: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while deleting the author.")
+                    .entity(new ErrorResponse("An error occurred while deleting the author.", e.getMessage()))
                     .build();
         }
     }
@@ -138,15 +139,16 @@ public class AuthorServiceImpl implements AuthorService {
             List<Book> books = dataStorage.getBooksByAuthor(id);
             if (books.isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT)
-                        .entity("No books found for the author.")
+                        .entity(new ErrorResponse("No books found for the author.", "The author exists but has no books."))
                         .build();
             }
             return Response.ok(books).build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching books by author: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching books by author.")
+                    .entity(new ErrorResponse("An error occurred while fetching books by author.", e.getMessage()))
                     .build();
         }
     }
+
 }

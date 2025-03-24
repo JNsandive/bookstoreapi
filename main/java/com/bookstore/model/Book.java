@@ -3,15 +3,27 @@ package com.bookstore.model;
 import com.bookstore.util.DataStorage;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import javax.validation.constraints.*;
 
 public class Book {
 
     private int id;
+    @NotNull(message = "Title cannot be null.")
     private String title;
+
     private Author author;
+
+    @NotNull(message = "ISBN cannot be null.")
     private String isbn;
-    private int stock;
-    private double price;
+
+    @NotNull(message = "Stock is required and cannot be null.")
+    @Positive(message = "Stock must be greater than 0.")
+    @Min(value = 1, message = "Stock must be greater than 0.")
+    private Integer stock;  
+    
+    @NotNull(message = "Price is required and cannot be null.")
+    @Positive(message = "Price must be greater than 0.")
+    private Double price;  
 
     public Book() {
     }
@@ -74,9 +86,8 @@ public class Book {
         this.price = price;
     }
 
-    @JsonSetter("authorId")
+    @JsonSetter("authorId")  // Make sure this is here to map "authorId" from JSON to setter
     public void setAuthorById(String authorId) {
-        // Fetch the author using the authorId
         Author author = DataStorage.getInstance().getAuthorById(authorId);
         if (author != null) {
             this.author = author;

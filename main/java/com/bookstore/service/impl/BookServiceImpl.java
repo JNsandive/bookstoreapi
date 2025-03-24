@@ -5,11 +5,13 @@ import com.bookstore.util.DataStorage;
 import com.bookstore.service.BookService;
 import com.bookstore.exception.BookNotFoundException;
 import com.bookstore.exception.InvalidInputException;
+import com.bookstore.model.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
+import javax.validation.Valid;
 
 public class BookServiceImpl implements BookService {
 
@@ -18,40 +20,37 @@ public class BookServiceImpl implements BookService {
 
     // Create book method
     @Override
-    public Response createBook(Book book) {
+    public Response createBook(@Valid Book book) {
         try {
             if (book == null) {
-                throw new IllegalArgumentException("Invalid book data.");
-            }
-
-            // Check if the author exists
-            if (book.getAuthor() == null) {
-                logger.error("Author with ID {} does not exist.", book.getAuthorId());
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Author with ID " + book.getAuthorId() + " does not exist.")
+                        .entity(new ErrorResponse("Invalid book data.", "The provided book data is null."))
                         .build();
             }
 
-            // Call addBook which will check for author validity
+            // Extract authorId from book and check if author exists
+            String authorId = book.getAuthorId();
+            if (authorId == null || DataStorage.getInstance().getAuthorById(authorId) == null) {
+                logger.error("Author ID does not exist.");
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(new ErrorResponse("Invalid author ID.", "The specified author ID is invalid."))
+                        .build();
+            }
+
+            // Proceed with adding the book
             Book createdBook = dataStorage.addBook(book);
             logger.info("Successfully created book: {}", createdBook);
-
-            return Response.status(Response.Status.CREATED).entity(createdBook).build();  // Return newly created book
+            return Response.status(Response.Status.CREATED).entity(createdBook).build();
 
         } catch (IllegalArgumentException e) {
             logger.error("Error creating book: {}", e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Invalid request data.") // Standard message
-                    .build();
-        } catch (InvalidInputException e) {
-            logger.error("Error creating book: {}", e.getMessage(), e);
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Invalid request data.") // Standard message
+                    .entity(new ErrorResponse("Invalid request data.", "The book data provided is not valid."))
                     .build();
         } catch (Exception e) {
             logger.error("Unexpected error while creating book: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while processing the request.") // Standard message
+                    .entity(new ErrorResponse("Internal server error.", "An unexpected error occurred while processing the request."))
                     .build();
         }
     }
@@ -68,34 +67,32 @@ public class BookServiceImpl implements BookService {
             if (book.getAuthor() == null) {
                 logger.error("Author with ID {} does not exist for update.", book.getAuthorId());
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Author with ID " + book.getAuthorId() + " does not exist.")
+                        .entity(new ErrorResponse("Invalid author ID.", "Author with ID " + book.getAuthorId() + " does not exist."))
                         .build();
             }
 
             // Update the book in storage
             Book updatedBook = dataStorage.updateBook(id, book);
-
             if (updatedBook == null) {
                 throw new BookNotFoundException("Book with ID " + id + " not found.");
             }
 
             logger.info("Successfully updated book: {}", updatedBook);
-
             return Response.ok(updatedBook).build();
         } catch (BookNotFoundException e) {
             logger.error("Book not found for update: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Book not found for update.")
+                    .entity(new ErrorResponse("Book not found for update.", e.getMessage()))
                     .build();
         } catch (InvalidInputException e) {
             logger.error("Invalid book data for update: {}", e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Invalid book data.")
+                    .entity(new ErrorResponse("Invalid book data.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("Unexpected error while updating book: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while updating the book.")
+                    .entity(new ErrorResponse("An error occurred while updating the book.", e.getMessage()))
                     .build();
         }
     }
@@ -107,14 +104,14 @@ public class BookServiceImpl implements BookService {
             List<Book> books = dataStorage.getBooks();
             if (books.isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT)
-                        .entity("No books available.")
+                        .entity(new ErrorResponse("No books available.", "The database returned an empty book list."))
                         .build();
             }
             return Response.ok(books).build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching books: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching books.")
+                    .entity(new ErrorResponse("An error occurred while fetching books.", e.getMessage()))
                     .build();
         }
     }
@@ -131,12 +128,12 @@ public class BookServiceImpl implements BookService {
         } catch (BookNotFoundException e) {
             logger.error("Book not found: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Book not found.")
+                    .entity(new ErrorResponse("Book not found.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while fetching the book: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while fetching the book.")
+                    .entity(new ErrorResponse("An error occurred while fetching the book.", e.getMessage()))
                     .build();
         }
     }
@@ -153,13 +150,14 @@ public class BookServiceImpl implements BookService {
         } catch (BookNotFoundException e) {
             logger.error("Book not found for deletion: {}", e.getMessage(), e);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Book not found for deletion.")
+                    .entity(new ErrorResponse("Book not found for deletion.", e.getMessage()))
                     .build();
         } catch (Exception e) {
             logger.error("An error occurred while deleting the book: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("An error occurred while deleting the book.")
+                    .entity(new ErrorResponse("An error occurred while deleting the book.", e.getMessage()))
                     .build();
         }
     }
+
 }
