@@ -1,5 +1,6 @@
 package com.bookstore.service.impl;
 
+import com.bookstore.exception.CustomerNotFoundException;
 import com.bookstore.model.Customer;
 import com.bookstore.model.ErrorResponse;
 import com.bookstore.util.DataStorage;
@@ -121,11 +122,14 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             boolean success = dataStorage.removeCustomer(customerId);
             if (!success) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(new ErrorResponse("Customer not found.", "No customer found with the given ID."))
-                        .build();
+                throw new CustomerNotFoundException("Customer not found with the given ID");
             }
             return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (CustomerNotFoundException e) {
+            logger.warn("Customer deletion failed: {}", e.getMessage());
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse("Customer not found.", e.getMessage()))
+                    .build();
         } catch (Exception e) {
             logger.error("An error occurred while deleting customer: {}", e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

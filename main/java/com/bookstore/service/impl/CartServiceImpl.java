@@ -34,12 +34,12 @@ public class CartServiceImpl implements CartService {
                         .build();
             }
 
-            // Fetch the customer's cart
+            // Fetch the customer's cart, if it doesn't exist, create a new one
             Cart cart = dataStorage.getCustomerCart(customerId);
             if (cart == null) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(new ErrorResponse("Customer cart not found.", "No cart found for the given customer ID."))
-                        .build();
+                // No cart exists for the customer, create a new one
+                cart = new Cart(customerId);
+                dataStorage.addCart(cart);  // Assuming addCart method is defined in DataStorage
             }
 
             // Add the book to the cart

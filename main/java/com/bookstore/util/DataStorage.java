@@ -158,6 +158,11 @@ public class DataStorage {
         return carts.get(customerId);
     }
 
+    // In DataStorage class
+    public void addCart(Cart cart) {
+        carts.put(cart.getCustomerId(), cart);
+    }
+
     // Update Cart
     public void updateCart(Cart cart) {
         carts.put(cart.getCustomerId(), cart);

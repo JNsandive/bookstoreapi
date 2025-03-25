@@ -24,6 +24,13 @@ public class AuthorServiceImpl implements AuthorService {
             if (author == null) {
                 throw new InvalidInputException("Invalid author data.");
             }
+
+            for (Author existingAuthor : dataStorage.getAuthors()) {
+                if (existingAuthor.getEmail().equalsIgnoreCase(author.getEmail())) {
+                    throw new InvalidInputException("Email already exists.");
+                }
+            }
+
             Author createdAuthor = dataStorage.addAuthor(author);
             return Response.status(Response.Status.CREATED).entity(createdAuthor).build();
         } catch (InvalidInputException e) {
@@ -87,10 +94,20 @@ public class AuthorServiceImpl implements AuthorService {
             if (author == null) {
                 throw new InvalidInputException("Invalid author data.");
             }
+            
+            author.setAuthorId(id);
+            for (Author a : dataStorage.getAuthors()) {
+                if (!a.getAuthorId().equals(id)) {
+                    if (a.getEmail().equalsIgnoreCase(author.getEmail())) {
+                        throw new InvalidInputException("Email already exists.");
+                    }
+                }
+            }
             Author updatedAuthor = dataStorage.updateAuthor(id, author);
             if (updatedAuthor == null) {
                 throw new AuthorNotFoundException("Author with ID " + id + " not found.");
             }
+
             return Response.ok(updatedAuthor).build();
         } catch (AuthorNotFoundException e) {
             logger.error("Author not found for update: {}", e.getMessage(), e);
